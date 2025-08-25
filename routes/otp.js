@@ -6,14 +6,6 @@ const { isRateLimited } =require("../utils/limiter.js")
 
 const router = express.Router();
 
-// Middleware: require RapidAPI proxy
-router.use((req, res, next) => {
-  const secret = req.get("X-RapidAPI-Proxy-Secret");
-  if (!secret || secret !== process.env.RAPID_PROXY_SECRET) {
-    return res.status(403).json({ error: "Forbidden: not via RapidAPI" });
-  }
-  next();
-});
 
 // Send OTP
 router.post("/send-otp", async (req, res) => {
