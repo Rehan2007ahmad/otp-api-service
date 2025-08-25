@@ -7,13 +7,13 @@ const { isRateLimited } =require("../utils/limiter.js")
 const router = express.Router();
 
 // Middleware: require RapidAPI proxy
-// router.use((req, res, next) => {
-//   const secret = req.get("X-RapidAPI-Proxy-Secret");
-//   if (!secret || secret !== process.env.RAPID_PROXY_SECRET) {
-//     return res.status(403).json({ error: "Forbidden: not via RapidAPI" });
-//   }
-//   next();
-// });
+router.use((req, res, next) => {
+  const secret = req.get("X-RapidAPI-Proxy-Secret");
+  if (!secret || secret !== process.env.RAPID_PROXY_SECRET) {
+    return res.status(403).json({ error: "Forbidden: not via RapidAPI" });
+  }
+  next();
+});
 
 // Send OTP
 router.post("/send-otp", async (req, res) => {
@@ -21,9 +21,9 @@ router.post("/send-otp", async (req, res) => {
   if (!email) return res.status(400).json({ error: "Email required" });
 
   // Rate limit: 3 per 15 min per email
-//   if (isRateLimited(email, 3, 15 * 60 * 1000)) {
-//     return res.status(429).json({ error: "Rate limited, try later" });
-//   }
+  if (isRateLimited(email, 3, 15 * 60 * 1000)) {
+    return res.status(429).json({ error: "Rate limited, try later" });
+  }
 
   const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
   const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
