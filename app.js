@@ -5,6 +5,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const otpRoutes = require("./routes/otp.js");
 const app = express();
+const cors = require('cors')
 
 const cron = require("node-cron");
 const axios = require("axios");
@@ -23,11 +24,21 @@ cron.schedule("*/5 * * * *", async () => {
 
 app.use(express.json());
 
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal Server Error" });
+});
+
+// Allow all origins
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-RapidAPI-Key"]
+}));
+
 
 app.get("/healthz", (_, res) => res.send("ok"));
 app.use("/", otpRoutes);
-
-
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
