@@ -6,6 +6,15 @@ const { isRateLimited } =require("../utils/limiter.js")
 
 const router = express.Router();
 
+// Middleware for RapidAPI secret validation
+router.use((req, res, next) => {
+  const secret = req.headers["x-rapidapi-proxy-secret"];
+  if (!secret || secret !== process.env.RAPID_PROXY_SECRET) {
+    return res.status(403).json({ error: "Forbidden - Invalid RapidAPI secret" });
+  }
+  next();
+});
+
 
 // Send OTP
 router.post("/send-otp", async (req, res) => {
